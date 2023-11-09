@@ -1,53 +1,107 @@
-using System.Diagnostics.Eventing.Reader;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace NumberLink_AI
 {
     public partial class Window : Form
     {
+        #region Variables
         public int puzzle = 1;
         private int population = 0;
         private int generations = 0;
         private int mutationRate = 0;
         private int fitness = 0;
+        private Node[,] nodes;
+        List<Node> globalSolution = new List<Node>();
+
+        private Timer timer1;
 
         private static Color[] colors = {Color.Red, Color.Orange,
             Color.Yellow, Color.Green, Color.Blue, Color.Cyan, Color.Magenta};
 
+        #endregion
+
         #region Puzzle Declarations
         static int[,] puzzle1 = { { 5, 0, 0, 0, 3 },
-                           { 0, 0, 0, 0, 0 },
-                           { 0, 1, 4, 0, 0 },
-                           { 0, 0, 5, 0, 0 },
-                           { 4, 1, 3, 0, 0 } };
+                                   { 0, 0, 0, 0, 0 },
+                                   { 0, 1, 4, 0, 0 },
+                                   { 0, 0, 5, 0, 0 },
+                                   { 4, 1, 3, 0, 0 } };
 
         static int[,] puzzle2 = { { 0, 0, 0, 0, 0 },
-                           { 2, 1, 0, 1, 2 },
-                           { 3, 0, 0, 0, 0 },
-                           { 0, 5, 0, 4, 0 },
-                           { 3, 4, 0, 5, 0 } };
+                                   { 2, 1, 0, 1, 2 },
+                                   { 3, 0, 0, 0, 0 },
+                                   { 0, 5, 0, 4, 0 },
+                                   { 3, 4, 0, 5, 0 } };
 
         static int[,] puzzle3 = { { 0, 0, 0, 0, 0, 0 },
-                           { 5, 1, 3, 2, 0, 0 },
-                           { 1, 0, 0, 4, 0, 0 },
-                           { 4, 0, 0, 0, 0, 5 },
-                           { 0, 3, 0, 0, 2, 6 },
-                           { 0, 0, 0, 6, 0, 0 } };
+                                   { 5, 1, 3, 2, 0, 0 },
+                                   { 1, 0, 0, 4, 0, 0 },
+                                   { 4, 0, 0, 0, 0, 5 },
+                                   { 0, 3, 0, 0, 2, 6 },
+                                   { 0, 0, 0, 6, 0, 0 } };
 
         static int[,] puzzle4 = { { 0, 0, 0, 0, 2, 7, 2, 0 },
-                           { 0, 0, 0, 0, 1, 0, 6, 0 },
-                           { 0, 0, 4, 0, 0, 0, 0, 0 },
-                           { 0, 0, 0, 0, 0, 7, 6, 0 },
-                           { 0, 0, 4, 0, 0, 0, 0, 0 },
-                           { 0, 0, 0, 0, 0, 0, 0, 0 },
-                           { 0, 5, 3, 1, 0, 0, 0, 0 },
-                           { 0, 0, 0, 0, 0, 0, 0, 0 }};
+                                   { 0, 0, 0, 0, 1, 0, 6, 0 },
+                                   { 0, 0, 4, 0, 0, 0, 0, 0 },
+                                   { 0, 0, 0, 0, 0, 7, 6, 0 },
+                                   { 0, 0, 4, 0, 0, 0, 0, 0 },
+                                   { 0, 0, 0, 0, 0, 0, 0, 0 },
+                                   { 0, 5, 3, 1, 0, 0, 0, 0 },
+                                   { 0, 0, 0, 0, 0, 0, 0, 0 }};
 
-        new readonly Dictionary<int, int[,]> puzzles = new Dictionary<int, int[,]>
+        /// <summary>
+        /// Convert int list to nodes (for clarity).
+        /// </summary>
+        /// <param name="puzzle"></param>
+        /// <returns></returns>
+        private static Node[,] ConvertToNodes(int[,] puzzle)
         {
-            {1, puzzle1},
-            {2, puzzle2},
-            {3, puzzle3},
-            {4, puzzle4}
+            int hgt = puzzle.GetUpperBound(0);
+            int wid = puzzle.GetUpperBound(1);
+            Node[,] nodes = new Node[hgt, wid];
+            //Create Nodes
+            for (int y = 0; y < hgt; y++)
+            {
+                for (int x = 0; x < wid; x++)
+                {
+                    nodes[x, y] = new Node(new Vector2(x, y), puzzle[x, y]);
+                }
+            }
+
+            // Initialize the nodes' neighbors.
+            for (int r = 0; r < hgt; r++)
+            {
+                for (int c = 0; c < wid; c++)
+                {
+                    if (r > 0)
+                        nodes[r, c].Neighbors.Add(nodes[r - 1, c]);
+                    if (r < hgt - 1)
+                        nodes[r, c].Neighbors.Add(nodes[r + 1, c]);
+                    if (c > 0)
+                        nodes[r, c].Neighbors.Add(nodes[r, c - 1]);
+                    if (c < wid - 1)
+                        nodes[r, c].Neighbors.Add(nodes[r, c + 1]);
+                }
+            }
+
+            return nodes;
+        }
+
+        new readonly Dictionary<int, Node[,]> puzzles = new Dictionary<int, Node[,]>
+        {
+            {1, ConvertToNodes(puzzle1)},
+            {2, ConvertToNodes(puzzle2)},
+            {3, ConvertToNodes(puzzle3)},
+            {4, ConvertToNodes(puzzle4)}
         };
         #endregion
 
@@ -103,6 +157,26 @@ namespace NumberLink_AI
         }
         #endregion
 
+        #region Synchronous Functions
+        //Initialize Timer.
+        public void InitTimer()
+        {
+            timer1 = new Timer();
+            timer1.Tick += new EventHandler(timer1_Tick);
+            timer1.Interval = 200; // in miliseconds
+            timer1.Start();
+        }
+
+        //Timer Update Function.
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            //Refresh UI
+            //DrawPuzzle(nodes);
+        }
+
+        #endregion
+
+
         /// <summary>
         /// Handle Game Start.
         /// </summary>
@@ -117,12 +191,7 @@ namespace NumberLink_AI
                 generations = int.Parse(GenIn.Text);
                 mutationRate = int.Parse(MutIn.Text);
                 fitness = int.Parse(FitIn.Text);
-
-                MessageBox.Show("Selected Puzzle: " + puzzle +
-                    "\nPopulation Size: " + population +
-                    "\nGeneration Size: " + generations +
-                    "\nMutation Rate: " + mutationRate +
-                    "\nFitness Size: " + fitness);
+                TestCase();
             }
         }
 
@@ -134,13 +203,22 @@ namespace NumberLink_AI
             DrawPuzzle(preview4, puzzles[4]);
         }
 
+        public void RequestUIUpdate(int i, List<Node> solution)
+        {
+            foreach (Node v in solution)
+            {
+                globalSolution.Add(v);
+            }
+            DrawPuzzle(MainFrame, nodes, globalSolution);
+        }
+
         /// <summary>
         /// Draw a numberlink grid in a given picturebox, and a solution, if given.
         /// </summary>
         /// <param name="image"></param>
         /// <param name="grid"></param>
         /// <param name="solution"></param>
-        private void DrawPuzzle(PictureBox image, int[,] grid, int[,]? solution = null)
+        private void DrawPuzzle(PictureBox image, Node[,] grid, List<Node>? solution = null)
         {
             int hgt = grid.GetUpperBound(0) + 1;
             int wid = grid.GetUpperBound(1) + 1;
@@ -172,9 +250,9 @@ namespace NumberLink_AI
                     {
                         int xcoord = x * CellWid + Xmin;
                         rect = new Rectangle(xcoord - 1, ycoord - 1, CellWid - 2, CellHgt - 2);
-                        if (grid[x, y] != 0)
+                        if (grid[x, y].Value != 0)
                         {
-                            brush = new SolidBrush(colors[grid[x, y] - 1]);
+                            brush = new SolidBrush(colors[grid[x, y].Value - 1]);
                             gr.FillEllipse(brush, rect);
                         }
                     }
@@ -312,6 +390,43 @@ namespace NumberLink_AI
         }
         #endregion
 
+        #endregion
+
+        #region Game
+        void TestCase()
+        {
+            List<Feeler> feelers = new List<Feeler>();
+            Node[,] nodes = puzzles[puzzle];
+            int numfeelers = 0;
+            switch(puzzle)
+            {
+                case 1:
+                    numfeelers = 4; 
+                    break;
+                case 2:
+                    numfeelers = 5;
+                    break;
+                case 3:
+                    numfeelers = 6;
+                    break;
+                case 4:
+                    numfeelers = 7;
+                    break;
+                default: 
+                    break;
+            }
+
+            for(int i = 1; i < numfeelers+1; i++)
+            {
+                feelers.Add(new Feeler(this, nodes, i));
+            }
+
+            foreach(Feeler feeler in feelers)
+            {
+                feeler.Feelers = feelers;
+                feeler.FindEnd();
+            }
+        }
         #endregion
     }
 }

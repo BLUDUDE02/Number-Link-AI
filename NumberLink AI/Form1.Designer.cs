@@ -1,4 +1,7 @@
-﻿namespace NumberLink_AI
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace NumberLink_AI
 {
     partial class Window
     {
@@ -139,6 +142,7 @@
             FitIn.RightToLeft = RightToLeft.Yes;
             FitIn.Size = new Size(40, 23);
             FitIn.TabIndex = 7;
+            FitIn.Text = "10";
             // 
             // FitLbl
             // 
@@ -159,6 +163,7 @@
             MutIn.RightToLeft = RightToLeft.Yes;
             MutIn.Size = new Size(40, 23);
             MutIn.TabIndex = 5;
+            MutIn.Text = "10";
             // 
             // MutLbl
             // 
@@ -179,6 +184,7 @@
             GenIn.RightToLeft = RightToLeft.Yes;
             GenIn.Size = new Size(40, 23);
             GenIn.TabIndex = 3;
+            GenIn.Text = "10";
             // 
             // PopIn
             // 
@@ -190,6 +196,7 @@
             PopIn.RightToLeft = RightToLeft.Yes;
             PopIn.Size = new Size(40, 23);
             PopIn.TabIndex = 2;
+            PopIn.Text = "10";
             // 
             // GenLbl
             // 
