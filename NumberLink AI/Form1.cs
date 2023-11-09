@@ -21,6 +21,7 @@ namespace NumberLink_AI
         private int fitness = 0;
         private Node[,] nodes;
         List<Node> globalSolution = new List<Node>();
+        List<Feeler> feelers = new List<Feeler>();
 
         private Timer timer1;
 
@@ -30,33 +31,32 @@ namespace NumberLink_AI
         #endregion
 
         #region Puzzle Declarations
-        static int[,] puzzle1 = { { 5, 0, 0, 0, 3 },
-                                   { 0, 0, 0, 0, 0 },
-                                   { 0, 1, 4, 0, 0 },
-                                   { 0, 0, 5, 0, 0 },
-                                   { 4, 1, 3, 0, 0 } };
+        static int[,] puzzle1 = { { 2, 0, 0, 0, 3 },
+                                  { 0, 0, 0, 0, 0 },
+                                  { 0, 1, 4, 0, 0 },
+                                  { 0, 0, 2, 0, 0 },
+                                  { 4, 1, 3, 0, 0 } };
 
         static int[,] puzzle2 = { { 0, 0, 0, 0, 0 },
-                                   { 2, 1, 0, 1, 2 },
-                                   { 3, 0, 0, 0, 0 },
-                                   { 0, 5, 0, 4, 0 },
-                                   { 3, 4, 0, 5, 0 } };
+                                  { 2, 1, 0, 1, 2 },
+                                  { 3, 0, 0, 0, 0 },
+                                  { 0, 5, 0, 4, 0 },
+                                  { 3, 4, 0, 5, 0 } };
 
         static int[,] puzzle3 = { { 0, 0, 0, 0, 0, 0 },
-                                   { 5, 1, 3, 2, 0, 0 },
-                                   { 1, 0, 0, 4, 0, 0 },
-                                   { 4, 0, 0, 0, 0, 5 },
-                                   { 0, 3, 0, 0, 2, 6 },
-                                   { 0, 0, 0, 6, 0, 0 } };
+                                  { 5, 1, 3, 2, 0, 0 },
+                                  { 1, 0, 0, 4, 0, 0 },
+                                  { 4, 0, 0, 0, 0, 5 },
+                                  { 0, 3, 0, 0, 2, 6 },
+                                  { 0, 0, 0, 6, 0, 0 } };
 
-        static int[,] puzzle4 = { { 0, 0, 0, 0, 2, 7, 2, 0 },
-                                   { 0, 0, 0, 0, 1, 0, 6, 0 },
-                                   { 0, 0, 4, 0, 0, 0, 0, 0 },
-                                   { 0, 0, 0, 0, 0, 7, 6, 0 },
-                                   { 0, 0, 4, 0, 0, 0, 0, 0 },
-                                   { 0, 0, 0, 0, 0, 0, 0, 0 },
-                                   { 0, 5, 3, 1, 0, 0, 0, 0 },
-                                   { 0, 0, 0, 0, 0, 0, 0, 0 }};
+        static int[,] puzzle4 = { { 0, 0, 0, 0, 0, 0, 1 },
+                                  { 0, 3, 2, 6, 0, 4, 3 },
+                                  { 0, 0, 0, 0, 0, 0, 0 },
+                                  { 0, 0, 5, 0, 0, 0, 0 },
+                                  { 0, 0, 0, 2, 0, 0, 0 },
+                                  { 0, 0, 0, 5, 1, 4, 0 },
+                                  { 6, 0, 0, 0, 0, 0, 0 }};
 
         /// <summary>
         /// Convert int list to nodes (for clarity).
@@ -65,8 +65,8 @@ namespace NumberLink_AI
         /// <returns></returns>
         private static Node[,] ConvertToNodes(int[,] puzzle)
         {
-            int hgt = puzzle.GetUpperBound(0);
-            int wid = puzzle.GetUpperBound(1);
+            int hgt = puzzle.GetUpperBound(0)+1;
+            int wid = puzzle.GetUpperBound(1)+1;
             Node[,] nodes = new Node[hgt, wid];
             //Create Nodes
             for (int y = 0; y < hgt; y++)
@@ -123,6 +123,7 @@ namespace NumberLink_AI
         private void preview1_Click(object sender, EventArgs e)
         {
             puzzle = 1;
+            feelers = new List<Feeler>();
             InitializePuzzles();
         }
         /// <summary>
@@ -133,6 +134,7 @@ namespace NumberLink_AI
         private void preview2_Click(object sender, EventArgs e)
         {
             puzzle = 2;
+            feelers = new List<Feeler>();
             InitializePuzzles();
         }
         /// <summary>
@@ -142,7 +144,8 @@ namespace NumberLink_AI
         /// <param name="e"></param>
         private void preview3_Click(object sender, EventArgs e)
         {
-            puzzle = 3;
+            puzzle = 3; 
+            feelers = new List<Feeler>();
             InitializePuzzles();
         }
         /// <summary>
@@ -153,6 +156,7 @@ namespace NumberLink_AI
         private void preview4_Click(object sender, EventArgs e)
         {
             puzzle = 4;
+            feelers = new List<Feeler>();
             InitializePuzzles();
         }
         #endregion
@@ -170,8 +174,12 @@ namespace NumberLink_AI
         //Timer Update Function.
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //Refresh UI
-            //DrawPuzzle(nodes);
+            UpdateUI();
+        }
+
+        private void UpdateUI()
+        {
+            DrawPuzzle(MainFrame, puzzles[puzzle]);
         }
 
         #endregion
@@ -203,22 +211,13 @@ namespace NumberLink_AI
             DrawPuzzle(preview4, puzzles[4]);
         }
 
-        public void RequestUIUpdate(int i, List<Node> solution)
-        {
-            foreach (Node v in solution)
-            {
-                globalSolution.Add(v);
-            }
-            DrawPuzzle(MainFrame, nodes, globalSolution);
-        }
-
         /// <summary>
         /// Draw a numberlink grid in a given picturebox, and a solution, if given.
         /// </summary>
         /// <param name="image"></param>
         /// <param name="grid"></param>
         /// <param name="solution"></param>
-        private void DrawPuzzle(PictureBox image, Node[,] grid, List<Node>? solution = null)
+        private void DrawPuzzle(PictureBox image, Node[,] grid)
         {
             int hgt = grid.GetUpperBound(0) + 1;
             int wid = grid.GetUpperBound(1) + 1;
@@ -258,7 +257,22 @@ namespace NumberLink_AI
                     }
                 }
 
-                //Draw solution (NOT IMPLEMENTED)
+                //Draw solution
+                if(image.Name == "MainFrame" && feelers != null && feelers.Count > 0)
+                {
+                    foreach(Feeler feeler in feelers)
+                    {
+                        for (int j = 1; j < feeler.Path.Count; j++)
+                        {
+                            Pen FeelerPen = new Pen(colors[feeler.Target-1], 8);
+                            Point A = new Point((int)(feeler.Path[j].Coords.X * CellWid + Xmin + CellWid / 2), 
+                                (int)(feeler.Path[j].Coords.Y * CellHgt + Ymin + CellHgt / 2));
+                            Point B = new Point((int)(feeler.Path[j-1].Coords.X * CellWid + Xmin + CellWid / 2),
+                                (int)(feeler.Path[j-1].Coords.Y * CellHgt + Ymin + CellHgt / 2));
+                            gr.DrawLine(FeelerPen,A, B);
+                        }
+                    }
+                }
 
                 //Highlight selected box
                 rect = new Rectangle(0, 0, image.Width, image.Height);
@@ -395,7 +409,7 @@ namespace NumberLink_AI
         #region Game
         void TestCase()
         {
-            List<Feeler> feelers = new List<Feeler>();
+            feelers = new List<Feeler>();
             Node[,] nodes = puzzles[puzzle];
             int numfeelers = 0;
             switch(puzzle)
@@ -410,7 +424,7 @@ namespace NumberLink_AI
                     numfeelers = 6;
                     break;
                 case 4:
-                    numfeelers = 7;
+                    numfeelers = 6;
                     break;
                 default: 
                     break;
@@ -426,6 +440,7 @@ namespace NumberLink_AI
                 feeler.Feelers = feelers;
                 feeler.FindEnd();
             }
+            InitTimer();
         }
         #endregion
     }

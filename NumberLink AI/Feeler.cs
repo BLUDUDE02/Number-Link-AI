@@ -16,6 +16,8 @@ namespace NumberLink_AI
         public int Target;
         public List<Feeler> Feelers = new List<Feeler>();
         public int canMove = 1;
+        public List<Node> Path = new List<Node>();
+        public List<Node> Blobs = new List<Node>();
         private Window Window;
         private int wid;
         private int hgt;
@@ -24,7 +26,6 @@ namespace NumberLink_AI
         private Node currentNode;
         private Node lastNode;
         private Node End = null;
-        private List<Node> Path = new List<Node>();
         private Random Random = new Random();
 
         public Feeler(Window window, Node[,] puzzle, int target)
@@ -35,23 +36,29 @@ namespace NumberLink_AI
             this.hgt = puzzle.GetUpperBound(0);
             this.wid = puzzle.GetUpperBound(1);
 
-            for (int y = 0; y < hgt; y++)
+            List<Node> NodesList = new List<Node>();
+            for (int i = 0; i < puzzle.GetLength(0); i++)
             {
-                for (int x = 0; x < wid; x++)
+                for (int j = 0; j < puzzle.GetLength(1); j++)
                 {
-                    if (puzzle[x,y].Value == this.Target)
-                    {
-                        if(Start == null)
-                        {
-                            Start = puzzle[x,y];
-                        }
-                        else
-                        {
-                            End = puzzle[x, y];
-                        }
-                    }
+                    NodesList.Add(puzzle[i, j]);
                 }
             }
+
+            this.Start = GetEnds(NodesList, this.Target)[0];
+            this.End = GetEnds(NodesList, this.Target)[1];
+            this.Blobs = GetBlobs(NodesList, this.Target);
+        }
+
+        private Node[] GetEnds(List<Node> nodes, int target)
+        {
+            Node[] nodeList = nodes.Select(o=>o).Where(o=>o.Value ==  target).ToArray();
+            return nodeList;
+        }
+        private List<Node> GetBlobs(List<Node> nodes, int target)
+        {
+            List<Node> nodeList = nodes.Select(o => o).Where(o => o.Value != 0 && o.Value != target).ToList();
+            return nodeList;
         }
 
         /// <summary>
@@ -85,11 +92,11 @@ namespace NumberLink_AI
             List<Node> possibleNodes = currentNode.Neighbors.
                 OrderBy(n => GetDistance(n, End)).
                 Where(n => !ContainsNode(n)).ToList();
-            //We may have multiple equidistent nodes
-            List<Node> closestNodes = new List<Node>();
-            int currentdistance = GetDistance(possibleNodes[0], End);
             if(possibleNodes.Count > 0)
             {
+                //We may have multiple equidistent nodes
+                List<Node> closestNodes = new List<Node>();
+                int currentdistance = GetDistance(possibleNodes[0], End);
                 foreach (Node node in possibleNodes)
                 {
                     if (GetDistance(node, End) <= currentdistance)
@@ -128,6 +135,10 @@ namespace NumberLink_AI
 
         private bool ContainsNode(Node n)
         {
+            if(Blobs.Contains(n))
+            {
+                return true;
+            }
             foreach(Feeler feeler in Feelers)
             {
                 if(feeler.Path.Contains(n))
