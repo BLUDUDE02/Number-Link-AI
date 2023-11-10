@@ -13,52 +13,31 @@ namespace NumberLink_AI
 {
     public class Feeler
     {
-        public int Target;
         public List<Feeler> Feelers = new List<Feeler>();
         public int canMove = 1;
         public List<Node> Path = new List<Node>();
-        public List<Node> Blobs = new List<Node>();
+        public Color color;
+        public int id;
         private Window Window;
         private int wid;
         private int hgt;
-        private Node[,] Puzzle;
+        private Puzzle Puzzle;
         private Node Start = null;
-        private Node currentNode;
-        private Node lastNode;
         private Node End = null;
+        private Node currentNode = null;
+        private Node lastNode = null;
         private Random Random = new Random();
 
-        public Feeler(Window window, Node[,] puzzle, int target)
+        public Feeler(Window window, Puzzle puzzle, int id)
         {
             this.Puzzle = puzzle;
-            this.Target = target;
             this.Window = window;
-            this.hgt = puzzle.GetUpperBound(0);
-            this.wid = puzzle.GetUpperBound(1);
-
-            List<Node> NodesList = new List<Node>();
-            for (int i = 0; i < puzzle.GetLength(0); i++)
-            {
-                for (int j = 0; j < puzzle.GetLength(1); j++)
-                {
-                    NodesList.Add(puzzle[i, j]);
-                }
-            }
-
-            this.Start = GetEnds(NodesList, this.Target)[0];
-            this.End = GetEnds(NodesList, this.Target)[1];
-            this.Blobs = GetBlobs(NodesList, this.Target);
-        }
-
-        private Node[] GetEnds(List<Node> nodes, int target)
-        {
-            Node[] nodeList = nodes.Select(o=>o).Where(o=>o.Value ==  target).ToArray();
-            return nodeList;
-        }
-        private List<Node> GetBlobs(List<Node> nodes, int target)
-        {
-            List<Node> nodeList = nodes.Select(o => o).Where(o => o.Value != 0 && o.Value != target).ToList();
-            return nodeList;
+            this.hgt = puzzle.height;
+            this.wid = puzzle.width;
+            this.Start = puzzle.Pairs[id].Nodes[0];
+            this.End = puzzle.Pairs[id].Nodes[1];
+            this.color = Start.Value;
+            this.id = id;
         }
 
         /// <summary>
@@ -77,11 +56,11 @@ namespace NumberLink_AI
 
             if(canMove == 0)
             {
-                System.Diagnostics.Debug.WriteLine("Feeler (" + Target + ") Got Stuck!");
+                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Got Stuck!");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Feeler (" + Target + ") Got Won!");
+                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Successfully Connected!");
             }
         }
 
@@ -135,16 +114,26 @@ namespace NumberLink_AI
 
         private bool ContainsNode(Node n)
         {
-            if(Blobs.Contains(n))
+            if (n != Start && n!= End)
+            {
+                foreach (LinkedNodes link in Puzzle.Pairs)
+                {
+                    if (link.Nodes.Contains(n))
+                    {
+                        return true;
+                    }
+                }
+                foreach (Feeler feeler in Feelers)
+                {
+                    if (feeler.Path.Contains(n))
+                    {
+                        return true;
+                    }
+                }
+            }
+            if (this.Path.Contains(n))
             {
                 return true;
-            }
-            foreach(Feeler feeler in Feelers)
-            {
-                if(feeler.Path.Contains(n))
-                {
-                    return true;
-                }
             }
             return false;
         }

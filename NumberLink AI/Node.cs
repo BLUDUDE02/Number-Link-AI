@@ -18,9 +18,9 @@ namespace NumberLink_AI
     {
         public Vector2 Coords;
         public List<Node> Neighbors = new List<Node>();
-        public int Value;
+        public Color Value;
 
-        public Node(Vector2 coords, int value)
+        public Node(Vector2 coords, Color value)
         {
             this.Coords = coords;
             this.Value = value;
