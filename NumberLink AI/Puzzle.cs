@@ -26,7 +26,7 @@ namespace NumberLink_AI
         {
             height = bmp.Height;
             width = bmp.Width;
-            Nodes = new Node[height, width];
+            Nodes = new Node[width, height];
             List<Color> colors = new List<Color>();
 
             //Build All Nodes, add unique and non-transparent colors to a list
