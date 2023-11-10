@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -14,152 +15,23 @@ namespace NumberLink_AI
     public partial class Window : Form
     {
         #region Variables
-        public int puzzle = 1;
         private int population = 0;
         private int generations = 0;
         private int mutationRate = 0;
         private int fitness = 0;
-        private Node[,] nodes;
-        List<Node> globalSolution = new List<Node>();
-        List<Feeler> feelers = new List<Feeler>();
 
+        private List<Feeler> feelers = new List<Feeler>();
+        private Puzzle puzzle = null;
         private Timer timer1;
-
-        private static Color[] colors = {Color.Red, Color.Orange,
-            Color.Yellow, Color.Green, Color.Blue, Color.Cyan, Color.Magenta};
-
         #endregion
-
-        #region Puzzle Declarations
-        static int[,] puzzle1 = { { 2, 0, 0, 0, 3 },
-                                  { 0, 0, 0, 0, 0 },
-                                  { 0, 1, 4, 0, 0 },
-                                  { 0, 0, 2, 0, 0 },
-                                  { 4, 1, 3, 0, 0 } };
-
-        static int[,] puzzle2 = { { 0, 0, 0, 0, 0 },
-                                  { 2, 1, 0, 1, 2 },
-                                  { 3, 0, 0, 0, 0 },
-                                  { 0, 5, 0, 4, 0 },
-                                  { 3, 4, 0, 5, 0 } };
-
-        static int[,] puzzle3 = { { 0, 0, 0, 0, 0, 0 },
-                                  { 5, 1, 3, 2, 0, 0 },
-                                  { 1, 0, 0, 4, 0, 0 },
-                                  { 4, 0, 0, 0, 0, 5 },
-                                  { 0, 3, 0, 0, 2, 6 },
-                                  { 0, 0, 0, 6, 0, 0 } };
-
-        static int[,] puzzle4 = { { 0, 0, 0, 0, 0, 0, 1 },
-                                  { 0, 3, 2, 6, 0, 4, 3 },
-                                  { 0, 0, 0, 0, 0, 0, 0 },
-                                  { 0, 0, 5, 0, 0, 0, 0 },
-                                  { 0, 0, 0, 2, 0, 0, 0 },
-                                  { 0, 0, 0, 5, 1, 4, 0 },
-                                  { 6, 0, 0, 0, 0, 0, 0 }};
-
-        /// <summary>
-        /// Convert int list to nodes (for clarity).
-        /// </summary>
-        /// <param name="puzzle"></param>
-        /// <returns></returns>
-        private static Node[,] ConvertToNodes(int[,] puzzle)
-        {
-            int hgt = puzzle.GetUpperBound(0)+1;
-            int wid = puzzle.GetUpperBound(1)+1;
-            Node[,] nodes = new Node[hgt, wid];
-            //Create Nodes
-            for (int y = 0; y < hgt; y++)
-            {
-                for (int x = 0; x < wid; x++)
-                {
-                    nodes[x, y] = new Node(new Vector2(x, y), puzzle[x, y]);
-                }
-            }
-
-            // Initialize the nodes' neighbors.
-            for (int r = 0; r < hgt; r++)
-            {
-                for (int c = 0; c < wid; c++)
-                {
-                    if (r > 0)
-                        nodes[r, c].Neighbors.Add(nodes[r - 1, c]);
-                    if (r < hgt - 1)
-                        nodes[r, c].Neighbors.Add(nodes[r + 1, c]);
-                    if (c > 0)
-                        nodes[r, c].Neighbors.Add(nodes[r, c - 1]);
-                    if (c < wid - 1)
-                        nodes[r, c].Neighbors.Add(nodes[r, c + 1]);
-                }
-            }
-
-            return nodes;
-        }
-
-        new readonly Dictionary<int, Node[,]> puzzles = new Dictionary<int, Node[,]>
-        {
-            {1, ConvertToNodes(puzzle1)},
-            {2, ConvertToNodes(puzzle2)},
-            {3, ConvertToNodes(puzzle3)},
-            {4, ConvertToNodes(puzzle4)}
-        };
-        #endregion
-
 
         public Window()
         {
             InitializeComponent();
-            InitializePuzzles();
+            InitTimer();
         }
 
         #region UI
-
-        #region Puzzle Selection
-        /// <summary>
-        /// Handles Selecting Puzzle 1
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void preview1_Click(object sender, EventArgs e)
-        {
-            puzzle = 1;
-            feelers = new List<Feeler>();
-            InitializePuzzles();
-        }
-        /// <summary>
-        /// Handles Selecting Puzzle 2
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void preview2_Click(object sender, EventArgs e)
-        {
-            puzzle = 2;
-            feelers = new List<Feeler>();
-            InitializePuzzles();
-        }
-        /// <summary>
-        /// Handles Selecting Puzzle 3
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void preview3_Click(object sender, EventArgs e)
-        {
-            puzzle = 3; 
-            feelers = new List<Feeler>();
-            InitializePuzzles();
-        }
-        /// <summary>
-        /// Handle Selecting Puzzle 4
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void preview4_Click(object sender, EventArgs e)
-        {
-            puzzle = 4;
-            feelers = new List<Feeler>();
-            InitializePuzzles();
-        }
-        #endregion
 
         #region Synchronous Functions
         //Initialize Timer.
@@ -167,7 +39,7 @@ namespace NumberLink_AI
         {
             timer1 = new Timer();
             timer1.Tick += new EventHandler(timer1_Tick);
-            timer1.Interval = 200; // in miliseconds
+            timer1.Interval = 10; // in miliseconds
             timer1.Start();
         }
 
@@ -179,9 +51,11 @@ namespace NumberLink_AI
 
         private void UpdateUI()
         {
-            DrawPuzzle(MainFrame, puzzles[puzzle]);
+            if (this.WindowState != FormWindowState.Minimized && puzzle != null)
+            {
+                DrawPuzzle(MainFrame, puzzle);
+            }
         }
-
         #endregion
 
 
@@ -199,16 +73,24 @@ namespace NumberLink_AI
                 generations = int.Parse(GenIn.Text);
                 mutationRate = int.Parse(MutIn.Text);
                 fitness = int.Parse(FitIn.Text);
-                TestCase();
+                TestCase(puzzle);
             }
         }
 
-        private void InitializePuzzles()
+        /// <summary>
+        /// Handle Puzzle Image Selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileDialogButton_Click(object sender, EventArgs e)
         {
-            DrawPuzzle(preview1, puzzles[1]);
-            DrawPuzzle(preview2, puzzles[2]);
-            DrawPuzzle(preview3, puzzles[3]);
-            DrawPuzzle(preview4, puzzles[4]);
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                FilePathText.Text = openFileDialog.FileName;
+                Bitmap bitmap = new Bitmap(FilePathText.Text);
+                puzzle = new Puzzle(bitmap);
+                UpdateUI();
+            }
         }
 
         /// <summary>
@@ -217,16 +99,17 @@ namespace NumberLink_AI
         /// <param name="image"></param>
         /// <param name="grid"></param>
         /// <param name="solution"></param>
-        private void DrawPuzzle(PictureBox image, Node[,] grid)
+        private void DrawPuzzle(PictureBox image, Puzzle puzzle)
         {
-            int hgt = grid.GetUpperBound(0) + 1;
-            int wid = grid.GetUpperBound(1) + 1;
+            int hgt = puzzle.height;
+            int wid = puzzle.width;
 
             int CellWid = image.Width / (wid + 2);
             int CellHgt = image.Height / (hgt + 2);
 
             if (CellWid > CellHgt) CellWid = CellHgt;
             else CellHgt = CellWid;
+
             int Xmin = (image.Width - wid * CellWid) / 2;
             int Ymin = (image.Height - hgt * CellHgt) / 2;
 
@@ -240,73 +123,51 @@ namespace NumberLink_AI
                 SolidBrush brush = new SolidBrush(Color.Black);
                 Pen pen = new Pen(Color.Brown, 6);
 
-                //Draw grid nodes.
                 gr.FillRectangle(brush, rect);
-                for (int y = 0; y < hgt; y++)
-                {
-                    int ycoord = y * CellHgt + Ymin;
-                    for (int x = 0; x < wid; x++)
-                    {
-                        int xcoord = x * CellWid + Xmin;
-                        rect = new Rectangle(xcoord - 1, ycoord - 1, CellWid - 2, CellHgt - 2);
-                        if (grid[x, y].Value != 0)
-                        {
-                            brush = new SolidBrush(colors[grid[x, y].Value - 1]);
-                            gr.FillEllipse(brush, rect);
-                        }
-                    }
-                }
-
                 //Draw solution
-                if(image.Name == "MainFrame" && feelers != null && feelers.Count > 0)
+                if (image.Name == "MainFrame" && feelers != null && feelers.Count > 0)
                 {
-                    foreach(Feeler feeler in feelers)
+                    foreach (Feeler feeler in feelers)
                     {
                         for (int j = 1; j < feeler.Path.Count; j++)
                         {
-                            Pen FeelerPen = new Pen(colors[feeler.Target-1], 8);
-                            Point A = new Point((int)(feeler.Path[j].Coords.X * CellWid + Xmin + CellWid / 2), 
+                            Pen FeelerPen = new Pen(feeler.color);
+                            Point B = new Point((int)(feeler.Path[j].Coords.X * CellWid + Xmin + CellWid / 2),
                                 (int)(feeler.Path[j].Coords.Y * CellHgt + Ymin + CellHgt / 2));
-                            Point B = new Point((int)(feeler.Path[j-1].Coords.X * CellWid + Xmin + CellWid / 2),
-                                (int)(feeler.Path[j-1].Coords.Y * CellHgt + Ymin + CellHgt / 2));
-                            gr.DrawLine(FeelerPen,A, B);
+                            Point A = new Point((int)(feeler.Path[j - 1].Coords.X * CellWid + Xmin + CellWid / 2),
+                                (int)(feeler.Path[j - 1].Coords.Y * CellHgt + Ymin + CellHgt / 2));
+                            if (j == feeler.Path.Count - 1)
+                            {
+                                FeelerPen.CustomEndCap = new AdjustableArrowCap(5, 5);
+                            }
+                            gr.DrawLine(FeelerPen, A, B);
                         }
                     }
                 }
 
-                //Highlight selected box
-                rect = new Rectangle(0, 0, image.Width, image.Height);
-                switch (image.Name)
+                //Draw grid nodes.
+                foreach (LinkedNodes link in puzzle.Pairs)
                 {
-                    case "preview1":
-                        if (puzzle == 1)
+                    foreach (Node node in link.Nodes)
+                    {
+                        int ycoord = (int)node.Coords.Y * CellHgt + Ymin;
+                        int xcoord = (int)node.Coords.X * CellWid + Xmin;
+                        brush = new SolidBrush(node.Value);
+                        Color color2 = ControlPaint.Light(node.Value, 1);
+                        rect = new Rectangle(xcoord + 4, ycoord + 4, CellWid - 8, CellHgt - 8);
+                        gr.FillEllipse(brush, rect);
+                        if (node == link.Nodes[0])
                         {
-                            gr.DrawRectangle(pen, rect);
+                            gr.DrawEllipse(new Pen(color2, 4), rect);
                         }
-                        break;
-                    case "preview2":
-                        if (puzzle == 2)
-                        {
-                            gr.DrawRectangle(pen, rect);
-                        }
-                        break;
-                    case "preview3":
-                        if (puzzle == 3)
-                        {
-
-                            gr.DrawRectangle(pen, rect);
-                        }
-                        break;
-                    case "preview4":
-                        if (puzzle == 4)
-                        {
-                            gr.DrawRectangle(pen, rect);
-                        }
-                        break;
-                    default:
-                        break;
+                        Font font = new Font("Arial", (float)CellHgt / 3);
+                        System.Drawing.SizeF stringSize = gr.MeasureString(link.ID.ToString(), font);
+                        int posX = Convert.ToInt32((rect.Width - stringSize.Width) / 2 + rect.X);
+                        int posY = Convert.ToInt32((rect.Height - stringSize.Height) / 2 + rect.Y);
+                        gr.DrawString(link.ID.ToString(), font, new SolidBrush(node.Value.GetBrightness() > 0.3f ? Color.Black : Color.White),
+                            new System.Drawing.Point(posX, posY));
+                    }
                 }
-
             }
             image.Image = bm;
         }
@@ -323,15 +184,13 @@ namespace NumberLink_AI
 
             ErrorProvider.Clear();
 
-            //If selected puzzle is invalid
-            //(should be impossible, but hey ho).
-            if (puzzle < 0 || puzzle > 4)
+            //If any text boxes are empty.
+            if (FilePathText.Text == String.Empty)
             {
-                MessageBox.Show("FATAL ERROR :(");
-                Application.Exit();
+                ErrorProvider.SetError(FilePathText, "Please select a file");
+                test = false;
             }
 
-            //If any text boxes are empty.
             if (PopIn.Text == String.Empty)
             {
                 ErrorProvider.SetError(PopIn, "Please enter a value here.");
@@ -391,7 +250,7 @@ namespace NumberLink_AI
                 test = false;
             }
 
-            //If the Fitness Box is > Population Size!
+            //If the Fitness Box is > Population Size + 1
             if ((FitIn.Text != String.Empty && PopIn.Text != String.Empty) &&
                 int.Parse(FitIn.Text) > int.Parse(PopIn.Text) + 1)
             {
@@ -400,47 +259,38 @@ namespace NumberLink_AI
                 test = false;
             }
 
+            //If selected puzzle image is invalid.
+            if (FilePathText.Text != String.Empty)
+            {
+                if (new Bitmap(FilePathText.Text).Height > 32)
+                {
+                    ErrorProvider.SetError(FilePathText, "Please select an image smaller than 32x32.");
+                    test = false;
+                }
+            }
+
             return test;
         }
         #endregion
 
         #endregion
 
-        #region Game
-        void TestCase()
+        #region Game Functions
+        void TestCase(Puzzle puzzle)
         {
             feelers = new List<Feeler>();
-            Node[,] nodes = puzzles[puzzle];
-            int numfeelers = 0;
-            switch(puzzle)
+            int numfeelers = puzzle.Pairs.Count();
+
+            for (int i = 0; i < numfeelers; i++)
             {
-                case 1:
-                    numfeelers = 4; 
-                    break;
-                case 2:
-                    numfeelers = 5;
-                    break;
-                case 3:
-                    numfeelers = 6;
-                    break;
-                case 4:
-                    numfeelers = 6;
-                    break;
-                default: 
-                    break;
+                feelers.Add(new Feeler(this, puzzle, i));
             }
 
-            for(int i = 1; i < numfeelers+1; i++)
-            {
-                feelers.Add(new Feeler(this, nodes, i));
-            }
-
-            foreach(Feeler feeler in feelers)
+            foreach (Feeler feeler in feelers)
             {
                 feeler.Feelers = feelers;
                 feeler.FindEnd();
             }
-            InitTimer();
         }
         #endregion
     }
