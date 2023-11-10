@@ -262,9 +262,9 @@ namespace NumberLink_AI
             //If selected puzzle image is invalid.
             if (FilePathText.Text != String.Empty)
             {
-                if (new Bitmap(FilePathText.Text).Height > 32)
+                if (new Bitmap(FilePathText.Text).Height > 64 || new Bitmap(FilePathText.Text).Width > 64)
                 {
-                    ErrorProvider.SetError(FilePathText, "Please select an image smaller than 32x32.");
+                    ErrorProvider.SetError(FilePathText, "Please select an image smaller than 64x64.");
                     test = false;
                 }
             }
