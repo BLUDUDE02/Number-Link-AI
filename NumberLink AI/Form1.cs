@@ -15,14 +15,15 @@ namespace NumberLink_AI
     public partial class Window : Form
     {
         #region Variables
-        private int population = 0;
-        private int generations = 0;
-        private int mutationRate = 0;
-        private int fitness = 0;
+        public int population = 0;
+        public int generations = 0;
+        public int mutationRate = 0;
+        public int fitness = 0;
 
-        private List<Feeler> feelers = new List<Feeler>();
-        private Puzzle puzzle = null;
-        private Timer timer1;
+        public Puzzle puzzle = null;
+        private System.Windows.Forms.Timer timer1;
+
+        public Individual bestIndividual = new Individual();
         #endregion
 
         public Window()
@@ -73,7 +74,8 @@ namespace NumberLink_AI
                 generations = int.Parse(GenIn.Text);
                 mutationRate = int.Parse(MutIn.Text);
                 fitness = int.Parse(FitIn.Text);
-                TestCase(puzzle);
+                GeneticsHandler genetics = new GeneticsHandler(this);
+                genetics.Start();
             }
         }
 
@@ -125,9 +127,9 @@ namespace NumberLink_AI
 
                 gr.FillRectangle(brush, rect);
                 //Draw solution
-                if (image.Name == "MainFrame" && feelers != null && feelers.Count > 0)
+                if (image.Name == "MainFrame" && bestIndividual != null && bestIndividual.Feelers.Count > 0)
                 {
-                    foreach (Feeler feeler in feelers)
+                    foreach (Feeler feeler in bestIndividual.Feelers)
                     {
                         for (int j = 1; j < feeler.Path.Count; j++)
                         {
@@ -230,9 +232,9 @@ namespace NumberLink_AI
             }
 
             //If the Mutation Box is < 1
-            if (MutIn.Text != String.Empty && int.Parse(MutIn.Text) < 1)
+            if (MutIn.Text != String.Empty && int.Parse(MutIn.Text) < 0)
             {
-                ErrorProvider.SetError(MutIn, "Please enter value greater than 0.");
+                ErrorProvider.SetError(MutIn, "Please enter value greater than or equal to 0.");
                 test = false;
             }
 
@@ -273,41 +275,6 @@ namespace NumberLink_AI
         }
         #endregion
 
-        #endregion
-
-        #region Game Functions
-        void TestCase(Puzzle puzzle)
-        {
-            feelers = new List<Feeler>();
-            int numfeelers = puzzle.Pairs.Count();
-
-            for (int i = 0; i < numfeelers; i++)
-            {
-                feelers.Add(new Feeler(this, puzzle, i));
-            }
-
-            feelers = ShuffleList(feelers);
-
-            foreach (Feeler feeler in feelers)
-            {
-                feeler.Feelers = feelers;
-                feeler.FindEnd();
-            }
-        }
-
-        private List<Feeler> ShuffleList(List<Feeler> list)
-        {
-            Random rnd = new Random();
-            List<Feeler> retList = new List<Feeler>();
-            while(list.Count > 0)
-            {
-                int index = rnd.Next(0, list.Count());
-                Feeler F = list[index];
-                list.RemoveAt(index);
-                retList.Add(F);
-            }
-            return retList;
-        }
         #endregion
     }
 }

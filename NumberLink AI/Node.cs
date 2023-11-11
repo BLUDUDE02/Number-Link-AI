@@ -20,6 +20,7 @@ namespace NumberLink_AI
         public Vector2 Coords;
         public List<Node> Neighbors = new List<Node>();
         public Color Value;
+        public int pathNum = -1;
 
         public Node(Vector2 coords, Color value)
         {
