@@ -16,6 +16,7 @@ namespace NumberLink_AI
         public List<Feeler> Feelers = new List<Feeler>();
         public int canMove = 1;
         public List<Node> Path = new List<Node>();
+        public List<Node> VisitedNodes = new List<Node>();
         public Color color;
         public int id;
         private Window Window;
@@ -47,16 +48,12 @@ namespace NumberLink_AI
         {
             currentNode = Start;
             lastNode = currentNode;
-            Path.Add(currentNode);
-            canMove = 1;
-            while(canMove == 1)
-            {
-                canMove = MakeAMove();
-            }
+            
+            int success = SolveWithSpanningTree(Start);
 
-            if(canMove == 0)
+            if(success == 0)
             {
-                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Got Stuck!");
+                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Could Not Find A Path!");
             }
             else
             {
@@ -64,6 +61,10 @@ namespace NumberLink_AI
             }
         }
 
+        /// <summary>
+        /// Greedy algorithm for navigating one space in a maze.
+        /// </summary>
+        /// <returns></returns>
         private int MakeAMove()
         {
             Node nextNode = null;
@@ -112,6 +113,90 @@ namespace NumberLink_AI
             }    
         }
 
+        private int SolveWithSpanningTree(Node root)
+        {
+            CleanPuzzle();
+            VisitedNodes = new List<Node>();
+            Random rand = new Random();
+
+            // Set the root node's predecessor so we know it's in the tree.
+            root.Predecessor = root;
+            VisitedNodes.Add(root);
+
+            // Make a list of candidate links.
+            List<TreeLink> links = new List<TreeLink>();
+
+            // Add the root's valid neighbors to the links list.
+            foreach (Node neighbor in root.Neighbors.Where(n => !ContainsNode(n)).ToList())
+            {
+                if (neighbor != null)
+                    links.Add(new TreeLink(root, neighbor));
+            }
+
+            // Add the other nodes to the tree.
+            while (links.Count > 0)
+            {
+                // Pick the first link.
+                int link_num = 0;
+                TreeLink link = links[link_num];
+                links.RemoveAt(link_num);
+
+                // Add this link to the tree.
+                Node to_node = link.ToNode;
+                link.ToNode.Predecessor = link.FromNode;
+                VisitedNodes.Add(to_node);
+
+                // Remove any links from the list that point
+                // to nodes that are already in the tree.
+                // (That will be the newly added node.)
+                for (int i = links.Count - 1; i >= 0; i--)
+                {
+                    if (links[i].ToNode.Predecessor != null)
+                        links.RemoveAt(i);
+                }
+
+                // Add to_node's links to the links list.
+                foreach (Node neighbor in to_node.Neighbors.Where(n => !ContainsNode(n)).ToList())
+                {
+                    if ((neighbor != null) && (neighbor.Predecessor == null))
+                        links.Add(new TreeLink(to_node, neighbor));
+                }
+            }
+            if(VisitedNodes.Contains(End))
+            {
+                //End Found! Build the path using the predecessors
+                Node newNode = End;
+                while(newNode != Start)
+                {
+                    Path.Add(newNode);
+                    newNode = newNode.Predecessor;
+                }
+                Path.Add(newNode.Predecessor);
+                Path.Reverse();
+                return 2;
+            }
+            else
+            {
+                //No valid path! return 0.
+                return 0;
+            }
+
+        }
+
+        /// <summary>
+        /// Wipe every predecessor from the puzzle
+        /// </summary>
+        private void CleanPuzzle()
+        {
+            for(int x = 0; x < Puzzle.width; x++)
+            {
+                for(int y = 0; y < Puzzle.height; y++)
+                {
+                    Puzzle.Nodes[x, y].Predecessor = null;
+                }
+            }
+        }
+
         private bool ContainsNode(Node n)
         {
             if (n != Start && n!= End)
@@ -130,10 +215,6 @@ namespace NumberLink_AI
                         return true;
                     }
                 }
-            }
-            if (this.Path.Contains(n))
-            {
-                return true;
             }
             return false;
         }

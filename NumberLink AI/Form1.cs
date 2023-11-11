@@ -286,11 +286,27 @@ namespace NumberLink_AI
                 feelers.Add(new Feeler(this, puzzle, i));
             }
 
+            feelers = ShuffleList(feelers);
+
             foreach (Feeler feeler in feelers)
             {
                 feeler.Feelers = feelers;
                 feeler.FindEnd();
             }
+        }
+
+        private List<Feeler> ShuffleList(List<Feeler> list)
+        {
+            Random rnd = new Random();
+            List<Feeler> retList = new List<Feeler>();
+            while(list.Count > 0)
+            {
+                int index = rnd.Next(0, list.Count());
+                Feeler F = list[index];
+                list.RemoveAt(index);
+                retList.Add(F);
+            }
+            return retList;
         }
         #endregion
     }

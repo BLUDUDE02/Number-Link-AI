@@ -16,6 +16,7 @@ namespace NumberLink_AI
     /// </summary>
     public class Node
     {
+        public Node Predecessor = null;
         public Vector2 Coords;
         public List<Node> Neighbors = new List<Node>();
         public Color Value;
