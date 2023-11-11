@@ -13,28 +13,20 @@ namespace NumberLink_AI
 {
     public class Feeler
     {
-        public List<Feeler> Feelers = new List<Feeler>();
         public int canMove = 1;
         public List<Node> Path = new List<Node>();
         public List<Node> VisitedNodes = new List<Node>();
         public Color color;
         public int id;
-        private Window Window;
-        private int wid;
-        private int hgt;
         private Puzzle Puzzle;
         private Node Start = null;
         private Node End = null;
-        private Node currentNode = null;
-        private Node lastNode = null;
-        private Random Random = new Random();
+        public List<(int, int)> Blockers = new List<(int, int)>();
+        public List<Feeler> feelers = new List<Feeler>();
 
-        public Feeler(Window window, Puzzle puzzle, int id)
+        public Feeler(Puzzle puzzle, int id)
         {
             this.Puzzle = puzzle;
-            this.Window = window;
-            this.hgt = puzzle.height;
-            this.wid = puzzle.width;
             this.Start = puzzle.Pairs[id].Nodes[0];
             this.End = puzzle.Pairs[id].Nodes[1];
             this.color = Start.Value;
@@ -44,73 +36,9 @@ namespace NumberLink_AI
         /// <summary>
         /// Create the path
         /// </summary>
-        public void FindEnd()
+        public int FindEnd()
         {
-            currentNode = Start;
-            lastNode = currentNode;
-            
-            int success = SolveWithSpanningTree(Start);
-
-            if(success == 0)
-            {
-                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Could Not Find A Path!");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Feeler (" + id.ToString() + ") Successfully Connected!");
-            }
-        }
-
-        /// <summary>
-        /// Greedy algorithm for navigating one space in a maze.
-        /// </summary>
-        /// <returns></returns>
-        private int MakeAMove()
-        {
-            Node nextNode = null;
-            //Get Current Neighbors not in path
-            List<Node> possibleNodes = currentNode.Neighbors.
-                OrderBy(n => GetDistance(n, End)).
-                Where(n => !ContainsNode(n)).ToList();
-            if(possibleNodes.Count > 0)
-            {
-                //We may have multiple equidistent nodes
-                List<Node> closestNodes = new List<Node>();
-                int currentdistance = GetDistance(possibleNodes[0], End);
-                foreach (Node node in possibleNodes)
-                {
-                    if (GetDistance(node, End) <= currentdistance)
-                    {
-                        closestNodes.Add(node);
-                    }
-                }
-
-                if (closestNodes.Count >= 1)
-                {
-                    nextNode = closestNodes[Random.Next(closestNodes.Count - 1)];
-                }
-                else
-                {
-                    nextNode = closestNodes[0];
-                }
-
-                lastNode = currentNode;
-                Path.Add(nextNode);
-                currentNode = nextNode;
-
-                if(currentNode != End) 
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 2;
-                }
-            }
-            else
-            {
-                return 0;
-            }    
+            return SolveWithSpanningTree(Start);
         }
 
         private int SolveWithSpanningTree(Node root)
@@ -162,6 +90,7 @@ namespace NumberLink_AI
                         links.Add(new TreeLink(to_node, neighbor));
                 }
             }
+
             if(VisitedNodes.Contains(End))
             {
                 //End Found! Build the path using the predecessors
@@ -173,11 +102,26 @@ namespace NumberLink_AI
                 }
                 Path.Add(newNode.Predecessor);
                 Path.Reverse();
-                return 2;
+                return 1;
             }
             else
             {
                 //No valid path! return 0.
+                //Add to the Blockers List.
+                foreach(Node neighbor in VisitedNodes.Last().Neighbors)
+                {
+                    foreach (Feeler feeler in feelers)
+                    {
+                        if (feeler.Path.Contains(neighbor) && feeler != this)
+                        {
+                            if(!Blockers.Select(o => o.Item1).ToList().Contains(feeler.id))
+                            {
+                                Blockers.Add((feeler.id, this.id));
+                            }
+                        }
+                    }  
+                }
+
                 return 0;
             }
 
@@ -208,7 +152,7 @@ namespace NumberLink_AI
                         return true;
                     }
                 }
-                foreach (Feeler feeler in Feelers)
+                foreach (Feeler feeler in feelers)
                 {
                     if (feeler.Path.Contains(n))
                     {
