@@ -55,7 +55,7 @@ namespace NumberLink_AI
             List<TreeLink> links = new List<TreeLink>();
 
             // Add the root's valid neighbors to the links list.
-            foreach (Node neighbor in root.Neighbors.Where(n => !ContainsNode(n)).ToList())
+            foreach (Node neighbor in root.Neighbors.Where(n => !ContainsNode(n,0)).ToList())
             {
                 if (neighbor != null)
                     links.Add(new TreeLink(root, neighbor));
@@ -64,8 +64,25 @@ namespace NumberLink_AI
             // Add the other nodes to the tree.
             while (links.Count > 0)
             {
-                // Pick the first link.
+                // Pick the best link.
                 int link_num = 0;
+                for(int i = 0; i < links.Count(); i++)
+                {
+                    //stick to paths
+                    int count = links[i].ToNode.Neighbors.Where(n => ContainsNode(n,0)).ToList().Count();
+                    if (count == 2)
+                    {
+                        link_num = i;
+                        break;
+                    }
+                    //Avoid terminal nodes that havent run yet
+                    //count = links[i].ToNode.Neighbors.Where(n => ContainsNode(n, 1)).ToList().Count();
+                    //if (count == 0)
+                    //{
+                    //    link_num = i;
+                    //    break;
+                    //}
+                }
                 TreeLink link = links[link_num];
                 links.RemoveAt(link_num);
 
@@ -84,7 +101,7 @@ namespace NumberLink_AI
                 }
 
                 // Add to_node's links to the links list.
-                foreach (Node neighbor in to_node.Neighbors.Where(n => !ContainsNode(n)).ToList())
+                foreach (Node neighbor in to_node.Neighbors.Where(n => !ContainsNode(n,0)).ToList())
                 {
                     if ((neighbor != null) && (neighbor.Predecessor == null))
                         links.Add(new TreeLink(to_node, neighbor));
@@ -141,24 +158,37 @@ namespace NumberLink_AI
             }
         }
 
-        private bool ContainsNode(Node n)
+        /// <summary>
+        /// Check for unavailable closest nodes. select 0 for all, 1 for just endpoints, and 2 for just edges, and 3 for endpoints yet to run
+        /// </summary>
+        /// <param name="n"></param>
+        /// <param name="choice"></param>
+        /// <returns></returns>
+        private bool ContainsNode(Node n, int choice)
         {
             if (n != Start && n!= End)
             {
-                foreach (LinkedNodes link in Puzzle.Pairs)
+                if(choice == 0 || choice == 1)
                 {
-                    if (link.Nodes.Contains(n))
+                    foreach (LinkedNodes link in Puzzle.Pairs)
                     {
-                        return true;
+                        if (link.Nodes.Contains(n))
+                        {
+                            return true;
+                        }
                     }
                 }
-                foreach (Feeler feeler in feelers)
+                if(choice == 0 || choice == 2)
                 {
-                    if (feeler.Path.Contains(n))
+                    foreach (Feeler feeler in feelers)
                     {
-                        return true;
+                        if (feeler.Path.Contains(n))
+                        {
+                            return true;
+                        }
                     }
                 }
+
             }
             return false;
         }

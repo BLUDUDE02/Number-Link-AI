@@ -13,5 +13,6 @@ namespace NumberLink_AI
     {
         public List<Node> Nodes = new List<Node>();
         public int ID;
+        public int status = 0;
     }
 }

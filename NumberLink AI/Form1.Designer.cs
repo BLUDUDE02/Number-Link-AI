@@ -44,6 +44,7 @@ namespace NumberLink_AI
             GenIn = new MaskedTextBox();
             MutIn = new MaskedTextBox();
             ResultsBox = new GroupBox();
+            checkBox1 = new CheckBox();
             StartButton = new Button();
             ErrorProvider = new ErrorProvider(components);
             openFileDialog = new OpenFileDialog();
@@ -54,6 +55,7 @@ namespace NumberLink_AI
             ((System.ComponentModel.ISupportInitialize)MainFrame).BeginInit();
             GeneticAlgorithmGroup.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
+            ResultsBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ErrorProvider).BeginInit();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -63,11 +65,11 @@ namespace NumberLink_AI
             // 
             MainFrame.BackColor = Color.Black;
             MainFrame.Dock = DockStyle.Fill;
-            MainFrame.Location = new Point(15, 15);
-            MainFrame.Margin = new Padding(15);
+            MainFrame.Location = new Point(28, 32);
+            MainFrame.Margin = new Padding(28, 32, 28, 32);
             MainFrame.Name = "MainFrame";
-            MainFrame.Padding = new Padding(5);
-            MainFrame.Size = new Size(610, 450);
+            MainFrame.Padding = new Padding(9, 11, 9, 11);
+            MainFrame.Size = new Size(1134, 960);
             MainFrame.TabIndex = 4;
             MainFrame.TabStop = false;
             // 
@@ -79,10 +81,12 @@ namespace NumberLink_AI
             GeneticAlgorithmGroup.Controls.Add(tableLayoutPanel3);
             GeneticAlgorithmGroup.Dock = DockStyle.Fill;
             GeneticAlgorithmGroup.ForeColor = Color.SaddleBrown;
-            GeneticAlgorithmGroup.Location = new Point(3, 63);
-            GeneticAlgorithmGroup.MaximumSize = new Size(15000, 15000);
+            GeneticAlgorithmGroup.Location = new Point(6, 111);
+            GeneticAlgorithmGroup.Margin = new Padding(6);
+            GeneticAlgorithmGroup.MaximumSize = new Size(27857, 32000);
             GeneticAlgorithmGroup.Name = "GeneticAlgorithmGroup";
-            GeneticAlgorithmGroup.Size = new Size(228, 138);
+            GeneticAlgorithmGroup.Padding = new Padding(6);
+            GeneticAlgorithmGroup.Size = new Size(553, 248);
             GeneticAlgorithmGroup.TabIndex = 5;
             GeneticAlgorithmGroup.TabStop = false;
             GeneticAlgorithmGroup.Text = "Parameters";
@@ -105,23 +109,25 @@ namespace NumberLink_AI
             tableLayoutPanel3.Controls.Add(MutIn, 1, 2);
             tableLayoutPanel3.Dock = DockStyle.Fill;
             tableLayoutPanel3.GrowStyle = TableLayoutPanelGrowStyle.FixedSize;
-            tableLayoutPanel3.Location = new Point(3, 19);
+            tableLayoutPanel3.Location = new Point(6, 38);
+            tableLayoutPanel3.Margin = new Padding(6);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 4;
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
-            tableLayoutPanel3.Size = new Size(222, 116);
+            tableLayoutPanel3.Size = new Size(541, 204);
             tableLayoutPanel3.TabIndex = 8;
             // 
             // PopLbl
             // 
             PopLbl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             PopLbl.AutoSize = true;
-            PopLbl.Location = new Point(8, 0);
+            PopLbl.Location = new Point(20, 0);
+            PopLbl.Margin = new Padding(6, 0, 6, 0);
             PopLbl.Name = "PopLbl";
-            PopLbl.Size = new Size(65, 29);
+            PopLbl.Size = new Size(128, 51);
             PopLbl.TabIndex = 0;
             PopLbl.Text = "Population";
             PopLbl.TextAlign = ContentAlignment.MiddleRight;
@@ -130,9 +136,10 @@ namespace NumberLink_AI
             // 
             GenLbl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             GenLbl.AutoSize = true;
-            GenLbl.Location = new Point(3, 29);
+            GenLbl.Location = new Point(6, 51);
+            GenLbl.Margin = new Padding(6, 0, 6, 0);
             GenLbl.Name = "GenLbl";
-            GenLbl.Size = new Size(70, 29);
+            GenLbl.Size = new Size(142, 51);
             GenLbl.TabIndex = 1;
             GenLbl.Text = "Generations";
             GenLbl.TextAlign = ContentAlignment.MiddleRight;
@@ -141,9 +148,10 @@ namespace NumberLink_AI
             // 
             MutLbl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             MutLbl.AutoSize = true;
-            MutLbl.Location = new Point(4, 58);
+            MutLbl.Location = new Point(9, 102);
+            MutLbl.Margin = new Padding(6, 0, 6, 0);
             MutLbl.Name = "MutLbl";
-            MutLbl.Size = new Size(69, 29);
+            MutLbl.Size = new Size(139, 51);
             MutLbl.TabIndex = 4;
             MutLbl.Text = "Mutation %";
             MutLbl.TextAlign = ContentAlignment.MiddleRight;
@@ -152,9 +160,10 @@ namespace NumberLink_AI
             // 
             FitLbl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             FitLbl.AutoSize = true;
-            FitLbl.Location = new Point(30, 87);
+            FitLbl.Location = new Point(61, 153);
+            FitLbl.Margin = new Padding(6, 0, 6, 0);
             FitLbl.Name = "FitLbl";
-            FitLbl.Size = new Size(43, 29);
+            FitLbl.Size = new Size(87, 51);
             FitLbl.TabIndex = 6;
             FitLbl.Text = "Fitness";
             FitLbl.TextAlign = ContentAlignment.MiddleRight;
@@ -164,12 +173,12 @@ namespace NumberLink_AI
             FitIn.BackColor = Color.Snow;
             FitIn.Dock = DockStyle.Fill;
             FitIn.ForeColor = Color.SaddleBrown;
-            FitIn.Location = new Point(79, 90);
-            FitIn.Margin = new Padding(3, 3, 32, 3);
+            FitIn.Location = new Point(160, 159);
+            FitIn.Margin = new Padding(6, 6, 59, 6);
             FitIn.Mask = "000";
             FitIn.Name = "FitIn";
             FitIn.RightToLeft = RightToLeft.Yes;
-            FitIn.Size = new Size(111, 23);
+            FitIn.Size = new Size(322, 39);
             FitIn.TabIndex = 7;
             FitIn.Text = "10";
             // 
@@ -178,12 +187,12 @@ namespace NumberLink_AI
             PopIn.BackColor = Color.Snow;
             PopIn.Dock = DockStyle.Fill;
             PopIn.ForeColor = Color.SaddleBrown;
-            PopIn.Location = new Point(79, 3);
-            PopIn.Margin = new Padding(3, 3, 32, 3);
+            PopIn.Location = new Point(160, 6);
+            PopIn.Margin = new Padding(6, 6, 59, 6);
             PopIn.Mask = "000";
             PopIn.Name = "PopIn";
             PopIn.RightToLeft = RightToLeft.Yes;
-            PopIn.Size = new Size(111, 23);
+            PopIn.Size = new Size(322, 39);
             PopIn.TabIndex = 2;
             PopIn.Text = "10";
             // 
@@ -192,12 +201,12 @@ namespace NumberLink_AI
             GenIn.BackColor = Color.Snow;
             GenIn.Dock = DockStyle.Fill;
             GenIn.ForeColor = Color.SaddleBrown;
-            GenIn.Location = new Point(79, 32);
-            GenIn.Margin = new Padding(3, 3, 32, 3);
+            GenIn.Location = new Point(160, 57);
+            GenIn.Margin = new Padding(6, 6, 59, 6);
             GenIn.Mask = "000";
             GenIn.Name = "GenIn";
             GenIn.RightToLeft = RightToLeft.Yes;
-            GenIn.Size = new Size(111, 23);
+            GenIn.Size = new Size(322, 39);
             GenIn.TabIndex = 3;
             GenIn.Text = "10";
             // 
@@ -206,12 +215,12 @@ namespace NumberLink_AI
             MutIn.BackColor = Color.Snow;
             MutIn.Dock = DockStyle.Fill;
             MutIn.ForeColor = Color.SaddleBrown;
-            MutIn.Location = new Point(79, 61);
-            MutIn.Margin = new Padding(3, 3, 32, 3);
+            MutIn.Location = new Point(160, 108);
+            MutIn.Margin = new Padding(6, 6, 59, 6);
             MutIn.Mask = "000";
             MutIn.Name = "MutIn";
             MutIn.RightToLeft = RightToLeft.Yes;
-            MutIn.Size = new Size(111, 23);
+            MutIn.Size = new Size(322, 39);
             MutIn.TabIndex = 5;
             MutIn.Text = "10";
             // 
@@ -220,15 +229,31 @@ namespace NumberLink_AI
             ResultsBox.AutoSize = true;
             ResultsBox.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ResultsBox.BackColor = Color.Linen;
+            ResultsBox.Controls.Add(checkBox1);
             ResultsBox.Dock = DockStyle.Fill;
             ResultsBox.ForeColor = Color.SaddleBrown;
-            ResultsBox.Location = new Point(3, 207);
-            ResultsBox.MaximumSize = new Size(15000, 15000);
+            ResultsBox.Location = new Point(6, 371);
+            ResultsBox.Margin = new Padding(6);
+            ResultsBox.MaximumSize = new Size(27857, 32000);
             ResultsBox.Name = "ResultsBox";
-            ResultsBox.Size = new Size(228, 5);
+            ResultsBox.Padding = new Padding(6);
+            ResultsBox.Size = new Size(553, 115);
             ResultsBox.TabIndex = 8;
             ResultsBox.TabStop = false;
-            ResultsBox.Text = "Results Overview";
+            ResultsBox.Text = "Options";
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Checked = true;
+            checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Location = new Point(9, 41);
+            checkBox1.Margin = new Padding(0);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(247, 36);
+            checkBox1.TabIndex = 0;
+            checkBox1.Text = "Wisdom of Crowds";
+            checkBox1.UseVisualStyleBackColor = true;
             // 
             // StartButton
             // 
@@ -237,10 +262,11 @@ namespace NumberLink_AI
             StartButton.BackColor = Color.Snow;
             StartButton.Dock = DockStyle.Fill;
             StartButton.ForeColor = Color.SaddleBrown;
-            StartButton.Location = new Point(3, 218);
-            StartButton.MaximumSize = new Size(15000, 50);
+            StartButton.Location = new Point(6, 498);
+            StartButton.Margin = new Padding(6);
+            StartButton.MaximumSize = new Size(27857, 107);
             StartButton.Name = "StartButton";
-            StartButton.Size = new Size(228, 50);
+            StartButton.Size = new Size(553, 107);
             StartButton.TabIndex = 9;
             StartButton.Text = "Start!";
             StartButton.UseVisualStyleBackColor = false;
@@ -262,10 +288,11 @@ namespace NumberLink_AI
             FileDialogButton.BackColor = Color.Snow;
             FileDialogButton.Dock = DockStyle.Fill;
             FileDialogButton.ForeColor = Color.SaddleBrown;
-            FileDialogButton.Location = new Point(3, 32);
-            FileDialogButton.MaximumSize = new Size(15000, 50);
+            FileDialogButton.Location = new Point(6, 57);
+            FileDialogButton.Margin = new Padding(6);
+            FileDialogButton.MaximumSize = new Size(27857, 107);
             FileDialogButton.Name = "FileDialogButton";
-            FileDialogButton.Size = new Size(228, 25);
+            FileDialogButton.Size = new Size(553, 42);
             FileDialogButton.TabIndex = 11;
             FileDialogButton.Text = "Browse";
             FileDialogButton.UseVisualStyleBackColor = false;
@@ -283,10 +310,11 @@ namespace NumberLink_AI
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.GrowStyle = TableLayoutPanelGrowStyle.FixedSize;
             tableLayoutPanel1.Location = new Point(0, 0);
+            tableLayoutPanel1.Margin = new Padding(6);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(884, 480);
+            tableLayoutPanel1.Size = new Size(1642, 1024);
             tableLayoutPanel1.TabIndex = 12;
             // 
             // tableLayoutPanel2
@@ -302,8 +330,8 @@ namespace NumberLink_AI
             tableLayoutPanel2.Controls.Add(FilePathText, 0, 0);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.GrowStyle = TableLayoutPanelGrowStyle.FixedSize;
-            tableLayoutPanel2.Location = new Point(645, 5);
-            tableLayoutPanel2.Margin = new Padding(5);
+            tableLayoutPanel2.Location = new Point(1199, 11);
+            tableLayoutPanel2.Margin = new Padding(9, 11, 9, 11);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 8;
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
@@ -314,26 +342,27 @@ namespace NumberLink_AI
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
-            tableLayoutPanel2.Size = new Size(234, 470);
+            tableLayoutPanel2.Size = new Size(434, 1002);
             tableLayoutPanel2.TabIndex = 5;
             // 
             // FilePathText
             // 
             FilePathText.Dock = DockStyle.Fill;
-            FilePathText.Location = new Point(3, 3);
-            FilePathText.Margin = new Padding(3, 3, 32, 3);
+            FilePathText.Location = new Point(6, 6);
+            FilePathText.Margin = new Padding(6, 6, 59, 6);
             FilePathText.Name = "FilePathText";
-            FilePathText.Size = new Size(199, 23);
+            FilePathText.Size = new Size(500, 39);
             FilePathText.TabIndex = 12;
             // 
             // Window
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = Color.PeachPuff;
-            ClientSize = new Size(884, 480);
+            ClientSize = new Size(1642, 1024);
             Controls.Add(tableLayoutPanel1);
+            Margin = new Padding(6);
             Name = "Window";
             SizeGripStyle = SizeGripStyle.Show;
             Text = "NumberLink";
@@ -342,6 +371,8 @@ namespace NumberLink_AI
             GeneticAlgorithmGroup.PerformLayout();
             tableLayoutPanel3.ResumeLayout(false);
             tableLayoutPanel3.PerformLayout();
+            ResultsBox.ResumeLayout(false);
+            ResultsBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)ErrorProvider).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
@@ -371,5 +402,6 @@ namespace NumberLink_AI
         private TableLayoutPanel tableLayoutPanel2;
         private TextBox FilePathText;
         private TableLayoutPanel tableLayoutPanel3;
+        private CheckBox checkBox1;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using System.Xml.Linq;
 
@@ -89,12 +90,15 @@ namespace NumberLink_AI
                     }
                 }
 
-                Individual WOCIndividual = WOC(population);
-                Parallel.Invoke(() => { runIndividual(WOCIndividual); });
-                if (WOCIndividual.score > population[0].score)
+                if(Window.useWOC)
                 {
-                    System.Diagnostics.Debug.WriteLine("WOC WON!");
-                    Window.bestIndividual = WOCIndividual;
+                    Individual WOCIndividual = WOC(population);
+                    Parallel.Invoke(() => { runIndividual(WOCIndividual); });
+                    if (WOCIndividual.score > population[0].score)
+                    {
+                        System.Diagnostics.Debug.WriteLine("WOC WON!");
+                        Window.bestIndividual = WOCIndividual;
+                    }
                 }
 
                 //If the best individual succeded
@@ -203,7 +207,7 @@ namespace NumberLink_AI
                 for(int j = i + 1; j < population.Count(); j++)
                 {
                     //Cross over
-                    Individual individual = Crossover2(population[i], population[j]);
+                    Individual individual = Crossover(population[i], population[j]);
                     //Handle Mutation
                     if(generation > 0)
                     {
@@ -312,6 +316,9 @@ namespace NumberLink_AI
                 f.feelers = child.Feelers;
             }
 
+            child.parents.Add(A);
+            child.parents.Add(B);
+
             return child;
         }
 
@@ -414,6 +421,12 @@ namespace NumberLink_AI
                     }
                 }
             }
+
+            foreach (Feeler f in child.Feelers)
+            {
+                f.feelers = child.Feelers;
+            }
+
             if (individual.Feelers.Count > puzzle.Pairs.Count)
             {
                 System.Diagnostics.Debug.WriteLine("ERROR?");

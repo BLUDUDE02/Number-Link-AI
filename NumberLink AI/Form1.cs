@@ -19,6 +19,7 @@ namespace NumberLink_AI
         public int generations = 0;
         public int mutationRate = 0;
         public int fitness = 0;
+        public bool useWOC = true;
 
         public Puzzle puzzle = null;
         private System.Windows.Forms.Timer timer1;
@@ -74,6 +75,7 @@ namespace NumberLink_AI
                 generations = int.Parse(GenIn.Text);
                 mutationRate = int.Parse(MutIn.Text);
                 fitness = int.Parse(FitIn.Text);
+                useWOC = checkBox1.Checked;
                 GeneticsHandler genetics = new GeneticsHandler(this);
                 genetics.Start();
             }
@@ -122,10 +124,12 @@ namespace NumberLink_AI
             {
                 gr.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 Rectangle rect = new Rectangle(2, 2, image.Width - 4, image.Height - 4);
+                Rectangle rect2 = new Rectangle(Xmin - 1, Ymin - 1, wid * CellWid + 2, hgt * CellHgt + 2);
                 SolidBrush brush = new SolidBrush(Color.Black);
                 Pen pen = new Pen(Color.Brown, 6);
 
                 gr.FillRectangle(brush, rect);
+                gr.DrawRectangle(new Pen(Color.White, 4f), rect2);
                 //Draw solution
                 if (image.Name == "MainFrame" && bestIndividual != null && bestIndividual.Feelers.Count > 0)
                 {
