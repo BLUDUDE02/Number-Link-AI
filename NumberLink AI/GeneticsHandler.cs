@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,6 +62,8 @@ namespace NumberLink_AI
 
         public void RunGenerations(List<Individual> population)
         {
+            var clock = new Stopwatch();
+            clock.Start();
             List<int> StagnationList = new List<int>();
             int successfulGenerations = -1;
             for(int i = 0; i < generations; i++)
@@ -116,6 +119,9 @@ namespace NumberLink_AI
             {
                 System.Diagnostics.Debug.WriteLine("NO SOLUTION FOUND IN " + generations + " GENERATIONS.");
             }
+
+            clock.Stop();
+            System.Diagnostics.Debug.WriteLine($"Execution time: {clock.Elapsed}");
         }
 
         public List<Individual> GetInitialPopulation(Puzzle puzzle)
