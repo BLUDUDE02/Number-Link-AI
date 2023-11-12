@@ -44,12 +44,12 @@ namespace NumberLink_AI
             {
                 individual.Feelers[j].FindEnd();
                 int i = (individual.Feelers[j].Path.Count > 0 ? 1 : 0);
-                if(j == 0 && i == 0)
+                if (j == 0 && i == 0)
                 {
                     System.Diagnostics.Debug.WriteLine("ERROR?");
                 }
                 individual.score += i;
-                
+
                 //Add Unique Blockers
                 foreach (var f in individual.Feelers[j].Blockers.
                     Where(o => !individual.Blockers.Contains(o)).ToList())
@@ -57,7 +57,7 @@ namespace NumberLink_AI
                     individual.Blockers.Add(f);
                 }
             }
-            System.Diagnostics.Debug.WriteLine("Individual (" + individual.id + ") score = " + individual.score);
+            //System.Diagnostics.Debug.WriteLine("Individual (" + individual.id + ") score = " + individual.score);
         }
 
         public void RunGenerations(List<Individual> population)
@@ -66,10 +66,10 @@ namespace NumberLink_AI
             clock.Start();
             List<int> StagnationList = new List<int>();
             int successfulGenerations = -1;
-            for(int i = 0; i < generations; i++)
+            for (int i = 0; i < generations; i++)
             {
                 population = BuildNewGeneration(population, i);
-                foreach (Individual individual in population) 
+                foreach (Individual individual in population)
                 {
                     Parallel.Invoke(() => { runIndividual(individual); });
                 }
@@ -78,24 +78,25 @@ namespace NumberLink_AI
 
                 int bestScore = StagnationList[StagnationList.Count - 1];
                 int count = 0;
-                for(int x = StagnationList.Count-2; x >= 0; x--)
+                for (int x = StagnationList.Count - 2; x >= 0; x--)
                 {
-                    if(bestScore == StagnationList[x])
+                    if (bestScore == StagnationList[x])
                     {
                         count++;
                     }
                 }
-                if(count >= 5)
+                if (count >= 5)
                 {
-                    for(int j = 0; j < 10; j++)
+                    for (int j = 0; j < 10; j++)
                     {
                         population.Add(RandomIndividual(puzzle, i));
                     }
                 }
 
-                if(Window.useWOC)
+                if (Window.useWOC)
                 {
                     Individual WOCIndividual = WOC(population);
+                    WOCIndividual.id = i + " -> WOC";
                     Parallel.Invoke(() => { runIndividual(WOCIndividual); });
                     if (WOCIndividual.score > population[0].score)
                     {
@@ -104,6 +105,8 @@ namespace NumberLink_AI
                     }
                 }
 
+                System.Diagnostics.Debug.WriteLine("GENERATION (" + i + ") AVERAGE SCORE: " + GetAverage(population));
+
                 //If the best individual succeded
                 if (population[0].score == puzzle.Pairs.Count)
                 {
@@ -111,7 +114,7 @@ namespace NumberLink_AI
                     break;
                 }
             }
-            if(successfulGenerations >= 0)
+            if (successfulGenerations >= 0)
             {
                 System.Diagnostics.Debug.WriteLine("PROBLEM SOLVED IN " + successfulGenerations + " GENERATIONS.");
             }
@@ -124,10 +127,23 @@ namespace NumberLink_AI
             System.Diagnostics.Debug.WriteLine($"Execution time: {clock.Elapsed}");
         }
 
+        public float GetAverage(List<Individual> pop)
+        {
+            float avg = 0;
+            foreach (Individual i in pop)
+            {
+                avg += i.score;
+            }
+            avg = avg / pop.Count();
+            avg = avg / puzzle.Pairs.Count();
+            avg *= 100;
+            return avg;
+        }
+
         public List<Individual> GetInitialPopulation(Puzzle puzzle)
         {
             List<Individual> population = new List<Individual>();
-            for(int i = 0; i < populationsize; i++)
+            for (int i = 0; i < populationsize; i++)
             {
                 Individual individual = new Individual();
 
@@ -139,7 +155,7 @@ namespace NumberLink_AI
                     feelers.Add(new Feeler(puzzle, j));
                 }
 
-                foreach(Feeler f in feelers)
+                foreach (Feeler f in feelers)
                 {
                     f.feelers = feelers;
                 }
@@ -174,7 +190,7 @@ namespace NumberLink_AI
             feelers = ShuffleList(feelers);
 
             individual.Feelers = feelers;
-            individual.id = Generation + " -> x" ;
+            individual.id = Generation + " -> x";
             return individual;
         }
 
@@ -189,7 +205,7 @@ namespace NumberLink_AI
             population = population.OrderByDescending(o => o.score).
                 ThenBy(n => n.Blockers.Count()).ToList();
 
-            for(int i = 0; i < fitness; i++) 
+            for (int i = 0; i < fitness; i++)
             {
                 retList.Add(population[i]);
             }
@@ -208,19 +224,19 @@ namespace NumberLink_AI
         {
             List<Individual> retList = new List<Individual>();
 
-            for(int i = 0; i < population.Count(); i++)
+            for (int i = 0; i < population.Count(); i++)
             {
-                for(int j = i + 1; j < population.Count(); j++)
+                for (int j = i + 1; j < population.Count(); j++)
                 {
                     //Cross over
                     Individual individual = Crossover(population[i], population[j]);
                     //Handle Mutation
-                    if(generation > 0)
+                    if (generation > 0)
                     {
                         if (random.Next(1, 100) <= mutationRate)
                         {
                             int rnd = random.Next(3);
-                            switch(rnd)
+                            switch (rnd)
                             {
                                 case 0:
                                     individual = Mutate(individual);
@@ -240,7 +256,7 @@ namespace NumberLink_AI
                 }
             }
 
-            for(int i = 0; i < retList.Count; i++)
+            for (int i = 0; i < retList.Count; i++)
             {
                 retList[i].id = generation + " -> " + i;
             }
@@ -263,10 +279,10 @@ namespace NumberLink_AI
             child.Feelers = new List<Feeler>();
             List<(float, int)> Objects = new List<(float, int)>();
 
-            for(int i = 0; i < A.Feelers.Count(); i++)
+            for (int i = 0; i < A.Feelers.Count(); i++)
             {
                 float rank = (float)(A.Feelers.IndexOf(A.Feelers.Select(o => o).
-                            Where(o => o.id == A.Feelers[i].id).ToList()[0]) + 
+                            Where(o => o.id == A.Feelers[i].id).ToList()[0]) +
                     B.Feelers.IndexOf(B.Feelers.Select(o => o).
                             Where(o => o.id == A.Feelers[i].id).ToList()[0])) / 2;
                 Objects.Add((rank, A.Feelers[i].id));
@@ -274,7 +290,7 @@ namespace NumberLink_AI
             Objects = Objects.OrderBy(o => o.Item1).ToList();
             List<int> ids = Objects.Select(o => o.Item2).Distinct().ToList();
 
-            foreach(int i in ids)
+            foreach (int i in ids)
             {
                 child.Feelers.Add(new Feeler(puzzle, i));
             }
@@ -287,7 +303,7 @@ namespace NumberLink_AI
             child.parents.Add(A);
             child.parents.Add(B);
 
-            if(child.Feelers.Count > puzzle.Pairs.Count)
+            if (child.Feelers.Count > puzzle.Pairs.Count)
             {
                 System.Diagnostics.Debug.WriteLine("ERROR?");
             }
@@ -305,19 +321,19 @@ namespace NumberLink_AI
         {
             Individual child = new Individual();
             child.Feelers = new List<Feeler>();
-            for(int i = 0; i < (int)Math.Ceiling((double)A.Feelers.Count/2); i++)
+            for (int i = 0; i < (int)Math.Ceiling((double)A.Feelers.Count / 2); i++)
             {
                 child.Feelers.Add(new Feeler(puzzle, A.Feelers[i].id));
             }
-            foreach(Feeler f in B.Feelers)
+            foreach (Feeler f in B.Feelers)
             {
-                if(!child.Feelers.Select(o=>o.id).ToList().Contains(f.id))
+                if (!child.Feelers.Select(o => o.id).ToList().Contains(f.id))
                 {
                     child.Feelers.Add(new Feeler(puzzle, f.id));
                 }
             }
 
-            foreach(Feeler f in child.Feelers)
+            foreach (Feeler f in child.Feelers)
             {
                 f.feelers = child.Feelers;
             }
@@ -337,7 +353,7 @@ namespace NumberLink_AI
             for (int i = 0; i < population[0].Feelers.Count; i++)
             {
                 float rank = 0;
-                foreach(Individual ind in population)
+                foreach (Individual ind in population)
                 {
                     rank += ind.Feelers.IndexOf(ind.Feelers.Select(o => o).
                             Where(o => o.id == population[0].Feelers[i].id).ToList()[0]);
@@ -397,7 +413,7 @@ namespace NumberLink_AI
         {
             Individual individual = child;
             List<(int, int)> Blockers = new List<(int, int)>();
-            foreach(Individual parent in individual.parents)
+            foreach (Individual parent in individual.parents)
             {
                 foreach ((int, int) Item in parent.Blockers)
                 {
@@ -405,7 +421,7 @@ namespace NumberLink_AI
                 }
             }
 
-            if(Blockers.Count > 0)
+            if (Blockers.Count > 0)
             {
                 List<int> f = Blockers.Select(o => o.Item1).ToList();
                 int weakestLink = f.GroupBy(value => value)
@@ -449,15 +465,15 @@ namespace NumberLink_AI
         {
             List<int> checkedFeelers = new List<int>();
             Individual individual = child;
-            foreach(Individual parent in individual.parents)
+            foreach (Individual parent in individual.parents)
             {
-                foreach(Feeler f in parent.Feelers)
+                foreach (Feeler f in parent.Feelers)
                 {
-                    if(f.Path.Count == 0 && !checkedFeelers.Contains(f.id))
+                    if (f.Path.Count == 0 && !checkedFeelers.Contains(f.id))
                     {
-                        individual.Feelers.Remove(individual.Feelers.Select(o=>o).
-                            Where(o=>o.id == f.id).ToList()[0]);
-                        individual.Feelers.Insert(0,new Feeler(puzzle, f.id));
+                        individual.Feelers.Remove(individual.Feelers.Select(o => o).
+                            Where(o => o.id == f.id).ToList()[0]);
+                        individual.Feelers.Insert(0, new Feeler(puzzle, f.id));
                         checkedFeelers.Add(f.id);
                         break;
                     }
@@ -472,7 +488,7 @@ namespace NumberLink_AI
             {
                 System.Diagnostics.Debug.WriteLine("ERROR?");
             }
-            
+
             return individual;
         }
 
